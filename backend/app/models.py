@@ -24,6 +24,9 @@ class User(Base):
     bookmarks = relationship("Bookmark", back_populates="user")
     likes = relationship("Like", back_populates="user")
     comments = relationship("Comment", back_populates="user")
+    genre_preferences = relationship("GenrePreference", back_populates="user")
+    views = relationship("View", back_populates="user")
+    clicks = relationship("Click", back_populates="user")
 
 
 class Film(Base):
@@ -85,4 +88,36 @@ class Comment(Base):
 
     user = relationship("User", back_populates="comments")
     clip = relationship("Clip", back_populates="comments")
+
+
+class GenrePreference(Base):
+    __tablename__ = "genre_preferences"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    genre = Column(String, nullable=False)
+
+    user = relationship("User", back_populates="genre_preferences")
+
+
+class View(Base):
+    __tablename__ = "views"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    clip_id = Column(Integer, ForeignKey("clips.id"), nullable=False)
+
+    user = relationship("User", back_populates="views")
+    clip = relationship("Clip")
+
+
+class Click(Base):
+    __tablename__ = "clicks"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    clip_id = Column(Integer, ForeignKey("clips.id"), nullable=False)
+
+    user = relationship("User", back_populates="clicks")
+    clip = relationship("Clip")
 
