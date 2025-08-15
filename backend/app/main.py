@@ -7,8 +7,11 @@ from fastapi_limiter.depends import RateLimiter
 import redis.asyncio as redis
 import json
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from .db import engine
+from .db import engine, get_db
+from . import models
+from .feed_service import fetch_candidates, rank_clips
 
 app = FastAPI(title="FilmClips API")
 
@@ -62,6 +65,20 @@ async def get_feed() -> dict:
     return data
 
 
+@app.get(
+    "/feed/personalized",
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))],
+)
+async def get_personalized_feed(
+    limit: int = 20,
+    user: dict = Depends(jwt_auth),
+    db: Session = Depends(get_db),
+) -> dict:
+    candidates = fetch_candidates(db, user_id=user["sub"], limit=limit)
+    ranked = rank_clips(db, candidates, limit=limit)
+    return {"items": ranked}
+
+
 @app.get("/clip/{id}", dependencies=[Depends(RateLimiter(times=20, seconds=60))])
 async def get_clip(id: int) -> dict:
     """Return details for a single clip."""
@@ -69,18 +86,52 @@ async def get_clip(id: int) -> dict:
 
 
 @app.post("/bookmark", dependencies=[Depends(jwt_auth), Depends(RateLimiter(times=5, seconds=60))])
-async def bookmark_clip(clip_id: int) -> dict:
+async def bookmark_clip(
+    clip_id: int,
+    user: dict = Depends(jwt_auth),
+    db: Session = Depends(get_db),
+) -> dict:
+    db.add(models.Bookmark(user_id=user["sub"], clip_id=clip_id))
+    db.commit()
     return {"status": "bookmarked", "clip_id": clip_id}
 
 
 @app.post("/like", dependencies=[Depends(jwt_auth), Depends(RateLimiter(times=20, seconds=60))])
-async def like_clip(clip_id: int) -> dict:
+async def like_clip(
+    clip_id: int,
+    user: dict = Depends(jwt_auth),
+    db: Session = Depends(get_db),
+) -> dict:
+    db.add(models.Like(user_id=user["sub"], clip_id=clip_id))
+    db.commit()
     return {"status": "liked", "clip_id": clip_id}
 
 
 @app.post("/comment", dependencies=[Depends(jwt_auth), Depends(RateLimiter(times=10, seconds=60))])
 async def comment_clip(clip_id: int, text: str) -> dict:
     return {"status": "commented", "clip_id": clip_id, "text": text}
+
+
+@app.post("/signal/view", dependencies=[Depends(jwt_auth)])
+async def signal_view(
+    clip_id: int,
+    user: dict = Depends(jwt_auth),
+    db: Session = Depends(get_db),
+) -> dict:
+    db.add(models.View(user_id=user["sub"], clip_id=clip_id))
+    db.commit()
+    return {"status": "viewed", "clip_id": clip_id}
+
+
+@app.post("/signal/click", dependencies=[Depends(jwt_auth)])
+async def signal_click(
+    clip_id: int,
+    user: dict = Depends(jwt_auth),
+    db: Session = Depends(get_db),
+) -> dict:
+    db.add(models.Click(user_id=user["sub"], clip_id=clip_id))
+    db.commit()
+    return {"status": "clicked", "clip_id": clip_id}
 
 
 @app.post("/auth")

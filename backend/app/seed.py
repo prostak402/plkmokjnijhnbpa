@@ -14,8 +14,12 @@ def seed() -> None:
         db.flush()
 
         # Films
-        film1 = models.Film(kinopoisk_id=100, data={"title": "Film 100"})
-        film2 = models.Film(kinopoisk_id=200, data={"title": "Film 200"})
+        film1 = models.Film(
+            kinopoisk_id=100, data={"title": "Film 100", "genres": ["drama"]}
+        )
+        film2 = models.Film(
+            kinopoisk_id=200, data={"title": "Film 200", "genres": ["comedy"]}
+        )
         db.add_all([film1, film2])
         db.flush()
 
@@ -25,10 +29,16 @@ def seed() -> None:
         db.add_all([clip1, clip2])
         db.flush()
 
+        # Genre preferences
+        db.add(models.GenrePreference(user=alice, genre="drama"))
+        db.add(models.GenrePreference(user=bob, genre="comedy"))
+
         # Interactions
         db.add(models.Bookmark(user=alice, clip=clip2))
         db.add(models.Like(user=bob, clip=clip1))
         db.add(models.Comment(user=bob, clip=clip1, text="Great clip!"))
+        db.add(models.View(user=alice, clip=clip1))
+        db.add(models.Click(user=alice, clip=clip1))
 
         db.commit()
     finally:
