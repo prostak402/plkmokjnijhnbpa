@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CLIPS, GENRES } from '@/data/mock';
 import { useApp } from '@/context/BookmarksContext';
+import { getFeed } from '@/api';
+import { Clip } from '@/types/clip';
 
 export default function FeedPage() {
   const {
@@ -15,13 +16,23 @@ export default function FeedPage() {
     toggleBookmark,
     addComment,
   } = useApp();
-  const list = CLIPS.filter((c) =>
+  const [clips, setClips] = useState<Clip[]>([]);
+  const list = clips.filter((c) =>
     genres.length ? c.genres.some((g) => genres.includes(g)) : true,
   );
-  const [currentId, setCurrentId] = useState(list[0]?.id);
+  const [currentId, setCurrentId] = useState<string | undefined>();
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getFeed()
+      .then((items: Clip[]) => {
+        setClips(items);
+        if (items.length) setCurrentId(items[0].id);
+      })
+      .catch(() => setClips([]));
+  }, []);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -72,10 +83,7 @@ export default function FeedPage() {
             <div className="info">
               <div className="title">{clip.filmTitle}</div>
               <div className="meta">
-                {clip.year} •{' '}
-                {clip.genres
-                  .map((g) => GENRES.find((x) => x.id === g)?.name || g)
-                  .join(' • ')}
+                {clip.year} • {clip.genres.join(' • ')}
               </div>
               <div className="logline">{clip.logline}</div>
               <div className="tags">
