@@ -2,7 +2,20 @@
   "name": "filmclips-mvp",
   "version": "0.1.0",
   "description": "Prototype of film clip feed web app",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "admin",
+    "shared"
+  ],
   "scripts": {
-    "test": "echo 'No tests yet'"
+    "test": "echo 'No tests yet'",
+    "lint": "eslint . --config shared/.eslintrc.cjs",
+    "format": "prettier . --config shared/.prettierrc.json --write"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
   }
 }
