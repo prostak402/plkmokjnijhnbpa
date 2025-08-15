@@ -1,0 +1,8 @@
+{
+  "name": "filmclips-mvp",
+  "version": "0.1.0",
+  "description": "Prototype of film clip feed web app",
+  "scripts": {
+    "test": "echo 'No tests yet'"
+  }
+}
