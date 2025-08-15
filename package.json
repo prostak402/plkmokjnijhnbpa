@@ -12,10 +12,13 @@
   "scripts": {
     "test": "echo 'No tests yet'",
     "lint": "eslint . --config shared/.eslintrc.cjs",
-    "format": "prettier . --config shared/.prettierrc.json --write"
+    "format": "prettier . --config shared/.prettierrc.json --write",
+    "dev": "concurrently \"uvicorn backend.app.main:app --reload\" \"npm run --workspace frontend dev\"",
+    "start": "concurrently \"uvicorn backend.app.main:app\" \"npm run --workspace frontend start\""
   },
   "devDependencies": {
     "eslint": "^8.57.0",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "concurrently": "^9.2.0"
   }
 }
