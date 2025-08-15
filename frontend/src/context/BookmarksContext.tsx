@@ -8,6 +8,12 @@ import {
   ReactNode,
 } from 'react';
 import { Clip } from '@/types/clip';
+import {
+  authenticate,
+  likeClip as apiLikeClip,
+  bookmarkClip as apiBookmarkClip,
+  commentClip as apiCommentClip,
+} from '@/api';
 
 interface Comment {
   text: string;
@@ -60,6 +66,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     readLS('settings', { autoplay: true, muteDefault: true }),
   );
 
+  // obtain JWT token on startup
+  useEffect(() => {
+    authenticate().catch(() => null);
+  }, []);
+
   useEffect(
     () => localStorage.setItem('likes', JSON.stringify(likes)),
     [likes],
@@ -83,6 +94,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   function toggleLike(id: string) {
     setLikes((p) => ({ ...p, [id]: !p[id] }));
+    apiLikeClip(id).catch(() => undefined);
   }
 
   function toggleBookmark(clip: Clip) {
@@ -92,10 +104,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       else copy[clip.id] = clip;
       return copy;
     });
+    if (!bookmarks[clip.id]) {
+      apiBookmarkClip(clip.id).catch(() => undefined);
+    }
   }
 
   function addComment(clipId: string, comment: Comment) {
     setComments((p) => ({ ...p, [clipId]: [comment, ...(p[clipId] || [])] }));
+    apiCommentClip(clipId, comment.text).catch(() => undefined);
   }
 
   function updateSettings(s: Partial<Settings>) {
