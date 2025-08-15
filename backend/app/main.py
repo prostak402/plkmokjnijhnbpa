@@ -6,6 +6,9 @@ from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
 import redis.asyncio as redis
 import json
+from sqlalchemy import text
+
+from .db import engine
 
 app = FastAPI(title="FilmClips API")
 
@@ -32,6 +35,9 @@ async def startup() -> None:
         "redis://localhost", encoding="utf-8", decode_responses=True
     )
     await FastAPILimiter.init(app.state.redis)
+    # Ensure database connection is available
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
 
 
 @app.on_event("shutdown")
