@@ -28,6 +28,9 @@ The backend uses PostgreSQL with SQLAlchemy and Alembic for migrations. The core
 - **bookmarks** – mapping of users to bookmarked clips (`id`, `user_id`, `clip_id`).
 - **likes** – mapping of users to liked clips (`id`, `user_id`, `clip_id`).
 - **comments** – user comments on clips (`id`, `user_id`, `clip_id`, `text`).
+- **genre_preferences** – preferred genres for each user (`id`, `user_id`, `genre`).
+- **views** – records of clip views (`id`, `user_id`, `clip_id`).
+- **clicks** – records of clip clicks (`id`, `user_id`, `clip_id`).
 
 Foreign keys connect clips to films and users, and link interactions back to the originating user and clip.
 
