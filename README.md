@@ -15,10 +15,11 @@
 
 ```bash
 npm install
+npm run setup-backend
 npm run dev
 ```
 
-Скрипт поднимает одновременно FastAPI-сервер (`http://localhost:8000`) и фронтенд Next.js (`http://localhost:3000`).
+Команда `npm run setup-backend` устанавливает Python-зависимости для FastAPI. После этого `npm run dev` поднимает одновременно FastAPI-сервер (`http://localhost:8000`) и фронтенд Next.js (`http://localhost:3000`).
 
 ## Разработка
 Отдельные пакеты можно запускать напрямую:
