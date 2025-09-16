@@ -13,7 +13,8 @@
     "test": "echo 'No tests yet'",
     "lint": "eslint . --config shared/.eslintrc.cjs",
     "format": "prettier . --config shared/.prettierrc.json --write",
-    "dev": "concurrently \"uvicorn backend.app.main:app --reload\" \"npm run --workspace frontend dev\"",
+    "setup-backend": "python -m pip install -r backend/requirements.txt",
+    "dev": "npm run setup-backend && concurrently \"uvicorn backend.app.main:app --reload\" \"npm run --workspace frontend dev\"",
     "start": "concurrently \"uvicorn backend.app.main:app\" \"npm run --workspace frontend start\""
   },
   "devDependencies": {
