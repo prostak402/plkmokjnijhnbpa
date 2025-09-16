@@ -16,10 +16,11 @@
 ```bash
 npm install
 npm run setup-backend
+docker compose up -d
 npm run dev
 ```
 
-Команда `npm run setup-backend` устанавливает Python-зависимости для FastAPI. После этого `npm run dev` поднимает одновременно FastAPI-сервер (`http://localhost:8000`) и фронтенд Next.js (`http://localhost:3000`).
+`docker compose up -d` поднимает PostgreSQL и Redis, необходимые бэкенду. Команда `npm run setup-backend` устанавливает Python-зависимости для FastAPI. После этого `npm run dev` поднимает одновременно FastAPI-сервер (`http://localhost:8000`) и фронтенд Next.js (`http://localhost:3000`).
 
 ## Разработка
 Отдельные пакеты можно запускать напрямую:

@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Depends, HTTPException, Request
+import json
+import os
+
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import jwt
+import redis.asyncio as redis
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
-import redis.asyncio as redis
-import json
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -34,9 +36,11 @@ async def jwt_auth(
 @app.on_event("startup")
 async def startup() -> None:
     """Initialize Redis and rate limiter."""
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     app.state.redis = redis.from_url(
-        "redis://localhost", encoding="utf-8", decode_responses=True
+        redis_url, encoding="utf-8", decode_responses=True
     )
+    await app.state.redis.ping()
     await FastAPILimiter.init(app.state.redis)
     # Ensure database connection is available
     with engine.connect() as conn:
